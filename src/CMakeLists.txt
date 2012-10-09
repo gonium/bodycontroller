@@ -16,6 +16,8 @@ target_link_libraries(bc-gui
   bodycontroller 
   ${Boost_LIBRARIES}
   ${QT_LIBRARIES}
+  ${OPENGL_LIBRARIES} 
+  ${GLUT_LIBRARY}
   )
 
 # sensor programs to the install target

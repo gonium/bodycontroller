@@ -75,6 +75,9 @@ IF (PB_FOUND)
   #link_libraries(${PB_LIBRARY})
 ENDIF (PB_FOUND)
 
+find_package(OpenGL REQUIRED)
+find_package(GLUT REQUIRED)
+
 # this command finds Qt4 libraries and sets all required variables
 # note that it's Qt4, not QT4 or qt4
 FIND_PACKAGE( Qt4 REQUIRED )
