@@ -15,6 +15,7 @@ GLWidget::GLWidget(QWidget *parent)
   xRot = 0;
   yRot = 0;
   zRot = 0;
+  _zoom= 500;
   qtGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
   qtPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
 }
@@ -94,7 +95,7 @@ void GLWidget::paintGL()
   glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
 
  // Draw cube in the right side of the window
-  glTranslatef(0.0f, 0.0f, -7.0f); // Move 7 units into the screen
+  //glTranslatef(0.0f, 0.0f, -7.0f); // Move 7 units into the screen
 
 
 
@@ -168,7 +169,9 @@ void GLWidget::resizeGL(int width, int height)
   glMatrixMode(GL_PROJECTION); // Select projection matrix
   glLoadIdentity(); // Reset projection matrix
 
-  glOrtho(-5, +5, -5, +5, 4.0, 15.0);
+  //glOrtho(-5, +5, -5, +5, 0.0, 15.0);
+
+  glOrtho(-0.01*_zoom, 0.01*_zoom, -0.01*_zoom, 0.01*_zoom, 0.0, 15.0);
   //gluLookAt(30, 30, 30, 0, 0, 0, 0, 1, 0);
   //gluPerspective(45.0f, static_cast<GLfloat>(width)/height, 0.1f, 100.0f); // Calculate aspect ratio
 
@@ -185,12 +188,19 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
   int dx = event->x() - lastPos.x();
   int dy = event->y() - lastPos.y();
+  int dzoom = event->y() - lastPos.y();
 
   if (event->buttons() & Qt::LeftButton) {
     setXRotation(xRot + 8 * dy);
     setYRotation(yRot + 8 * dx);
   } else if (event->buttons() & Qt::MiddleButton) {
-    setZRotation(zRot + 8 * dx);
+    _zoom+=dzoom;
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-0.01*_zoom, 0.01*_zoom, -0.01*_zoom, 0.01*_zoom, -15.0, 15.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    updateGL();
   } else if (event->buttons() & Qt::RightButton) {
     setXRotation(xRot + 8 * dy);
     setZRotation(zRot + 8 * dx);

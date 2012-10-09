@@ -39,6 +39,7 @@ namespace bodycontroller {
       int xRot;
       int yRot;
       int zRot;
+      int _zoom;
       QPoint lastPos;
       QColor qtGreen;
       QColor qtPurple;
