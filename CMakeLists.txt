@@ -78,11 +78,11 @@ ENDIF (PB_FOUND)
 # this command finds Qt4 libraries and sets all required variables
 # note that it's Qt4, not QT4 or qt4
 FIND_PACKAGE( Qt4 REQUIRED )
-
+set(QT_USE_QTOPENGL TRUE)
 # add some useful macros and variables
 # (QT_USE_FILE is a variable defined by FIND_PACKAGE( Qt4 ) that contains a path to CMake script)
 INCLUDE( ${QT_USE_FILE} )
-
+message("Libs: ${QT_LIBRARIES}")
 
 include_directories(${CMAKE_BINARY_DIR})
 

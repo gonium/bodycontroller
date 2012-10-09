@@ -15,7 +15,7 @@ file(GLOB bodycontroller_src
 )
 
 # QT foo.
-set(bodycontroller_hdr gui_main_window.hpp)
+set(bodycontroller_hdr gui_main_window.hpp gl_widget.hpp)
 set(bodycontroller_forms main_window.ui)
 #set(bodycontroller_resources sprites.qrc)
 QT4_WRAP_UI(bodycontroller_hdr_forms ${bodycontroller_forms})

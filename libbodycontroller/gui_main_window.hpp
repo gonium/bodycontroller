@@ -5,6 +5,7 @@
 #include <QGraphicsScene>
 #include <libbodycontroller/common.hpp>
 #include <libbodycontroller/ui_main_window.h>
+#include <libbodycontroller/gl_widget.hpp>
 #include <boost/filesystem.hpp>
 
 namespace bfs=boost::filesystem;
@@ -31,6 +32,7 @@ namespace bodycontroller {
       GUIMainWindow (const GUIMainWindow& original);
       GUIMainWindow& operator= (const GUIMainWindow& rhs);
       Ui::SimpleUI* _ui;
+      GLWidget* _gl_widget;
   };
 
 };
