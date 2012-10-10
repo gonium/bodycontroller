@@ -11,23 +11,21 @@ using namespace bodycontroller;
 
 GLWidget::GLWidget(QWidget *parent)
   : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+  , _xrot(0)
+  , _yrot(0)
+  , _zrot(0)
+  , _zoom(500)
 {
-  xRot = 0;
-  yRot = 0;
-  zRot = 0;
-  _zoom= 500;
-  qtGreen = QColor::fromCmykF(0.40, 0.0, 1.0, 0.0);
-  qtPurple = QColor::fromCmykF(0.39, 0.39, 0.0, 0.0);
 }
 
 QSize GLWidget::minimumSizeHint() const
 {
-  return QSize(300, 300);
+  return QSize(640, 480);
 }
 
 QSize GLWidget::sizeHint() const
 {
-  return QSize(400, 400);
+  return QSize(640, 480);
 }
 
 static void qNormalizeAngle(int &angle)
@@ -41,9 +39,9 @@ static void qNormalizeAngle(int &angle)
 void GLWidget::setXRotation(int angle)
 {
   qNormalizeAngle(angle);
-  if (angle != xRot) {
-    xRot = angle;
-    emit xRotationChanged(angle);
+  if (angle != _xrot) {
+    _xrot = angle;
+    emit x_rotation_changed(angle);
     updateGL();
   }
 }
@@ -51,9 +49,9 @@ void GLWidget::setXRotation(int angle)
 void GLWidget::setYRotation(int angle)
 {
   qNormalizeAngle(angle);
-  if (angle != yRot) {
-    yRot = angle;
-    emit yRotationChanged(angle);
+  if (angle != _yrot) {
+    _yrot = angle;
+    emit y_rotation_changed(angle);
     updateGL();
   }
 }
@@ -61,9 +59,9 @@ void GLWidget::setYRotation(int angle)
 void GLWidget::setZRotation(int angle)
 {
   qNormalizeAngle(angle);
-  if (angle != zRot) {
-    zRot = angle;
-    emit zRotationChanged(angle);
+  if (angle != _zrot) {
+    _zrot = angle;
+    emit z_rotation_changed(angle);
     updateGL();
   }
 }
@@ -82,35 +80,13 @@ void GLWidget::initializeGL()
   //glEnable(GL_LIGHTING);
   //glEnable(GL_LIGHT0);
   //glEnable(GL_MULTISAMPLE);
-  //static GLfloat lightPosition[4] = { 5, 5.0, 7.0, 1.0 };
+  //static GLfloat lightPosition[4] = { 15, 15.0, 15.0, 10.0 };
   //glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
 }
 
-void GLWidget::paintGL()
-{
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glLoadIdentity(); // Reset current modelview matrix
-  glRotatef(xRot / 16.0, 1.0, 0.0, 0.0);
-  glRotatef(yRot / 16.0, 0.0, 1.0, 0.0);
-  glRotatef(zRot / 16.0, 0.0, 0.0, 1.0);
-
- // Draw cube in the right side of the window
-  //glTranslatef(0.0f, 0.0f, -7.0f); // Move 7 units into the screen
-
-
-
-  //logo->draw();
-  // TODO: Draw something here.
-  // gluLookAt(0,0,-10,0.5,0.5,0,0,1,0);
-  //glClear(GL_COLOR_BUFFER_BIT);
-  //glColor3f(1,0,0);
-  //glBegin(GL_POLYGON);
-  //glVertex3f(0,0,0);
-  //glVertex3f(0,1,0);
-  //glVertex3f(1,1,0);
-  //glVertex3f(1,0,0);
-  //glEnd();
-
+void GLWidget::draw_cube(float x, float y, float z) {
+  glPushMatrix();
+  glTranslatef(x, y, z); 
   glBegin(GL_QUADS);		// Draw The Cube Using quads
   glColor3f(0.0f,1.0f,0.0f);	// Color Blue
   glVertex3f( 1.0f, 1.0f,-1.0f);	// Top Right Of The Quad (Top)
@@ -143,22 +119,42 @@ void GLWidget::paintGL()
   glVertex3f( 1.0f,-1.0f, 1.0f);	// Bottom Left Of The Quad (Right)
   glVertex3f( 1.0f,-1.0f,-1.0f);	// Bottom Right Of The Quad (Right)
   glEnd();			// End Drawing The Cube
+  glPopMatrix();
+}
+
+void GLWidget::paintGL()
+{
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glLoadIdentity(); // Reset current modelview matrix
+  glRotatef(_xrot / 16.0, 1.0, 0.0, 0.0);
+  glRotatef(_yrot / 16.0, 0.0, 1.0, 0.0);
+  glRotatef(_zrot / 16.0, 0.0, 0.0, 1.0);
+
+ // Draw cube in the right side of the window
+// next code will draw a line at starting and ending coordinates specified by glVertex3f
+  glBegin(GL_LINES);
+  glColor3f(1.0f,1.0f,1.0f);	// Color Violet
+  glVertex3f(1.0f, 1.0f, 0.0f); // origin of the line
+  glVertex3f(2.0f, 3.0f, 5.0f); // ending point of the line
+  glEnd( );
+  draw_cube(-1.5f, 0.0, 0.0);
+  draw_cube(1.5f, 0.0, 0.0);
 }
 
 void GLWidget::resizeGL(int width, int height)
 {
-//  int side = qMin(width, height);
-//  glViewport((width - side) / 2, (height - side) / 2, side, side);
-//
-//  glMatrixMode(GL_PROJECTION);
-//  glLoadIdentity();
-//#ifdef QT_OPENGL_ES_1
-//  glOrthof(-0.5, +0.5, -0.5, +0.5, 4.0, 15.0);
-//#else
-//  glOrtho(-0.5, +0.5, -0.5, +0.5, 4.0, 15.0);
-//#endif
-//  glMatrixMode(GL_MODELVIEW);
-//  glLoadIdentity();
+  //  int side = qMin(width, height);
+  //  glViewport((width - side) / 2, (height - side) / 2, side, side);
+  //
+  //  glMatrixMode(GL_PROJECTION);
+  //  glLoadIdentity();
+  //#ifdef QT_OPENGL_ES_1
+  //  glOrthof(-0.5, +0.5, -0.5, +0.5, 4.0, 15.0);
+  //#else
+  //  glOrtho(-0.5, +0.5, -0.5, +0.5, 4.0, 15.0);
+  //#endif
+  //  glMatrixMode(GL_MODELVIEW);
+  //  glLoadIdentity();
 
   // Prevent divide by zero (in the gluPerspective call)
   if (height == 0)
@@ -168,13 +164,7 @@ void GLWidget::resizeGL(int width, int height)
 
   glMatrixMode(GL_PROJECTION); // Select projection matrix
   glLoadIdentity(); // Reset projection matrix
-
-  //glOrtho(-5, +5, -5, +5, 0.0, 15.0);
-
-  glOrtho(-0.01*_zoom, 0.01*_zoom, -0.01*_zoom, 0.01*_zoom, 0.0, 15.0);
-  //gluLookAt(30, 30, 30, 0, 0, 0, 0, 1, 0);
-  //gluPerspective(45.0f, static_cast<GLfloat>(width)/height, 0.1f, 100.0f); // Calculate aspect ratio
-
+  glOrtho(-0.01*_zoom, 0.01*_zoom, -0.01*_zoom, 0.01*_zoom, -15.0, 15.0);
   glMatrixMode(GL_MODELVIEW); // Select modelview matrix
   glLoadIdentity(); // Reset modelview matrix
 }
@@ -191,8 +181,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
   int dzoom = event->y() - lastPos.y();
 
   if (event->buttons() & Qt::LeftButton) {
-    setXRotation(xRot + 8 * dy);
-    setYRotation(yRot + 8 * dx);
+    setXRotation(_xrot + 8 * dy);
+    setYRotation(_yrot + 8 * dx);
   } else if (event->buttons() & Qt::MiddleButton) {
     _zoom+=dzoom;
     glMatrixMode(GL_PROJECTION);
@@ -202,8 +192,8 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     glLoadIdentity();
     updateGL();
   } else if (event->buttons() & Qt::RightButton) {
-    setXRotation(xRot + 8 * dy);
-    setZRotation(zRot + 8 * dx);
+    setXRotation(_xrot + 8 * dy);
+    setZRotation(_zrot + 8 * dx);
   }
   lastPos = event->pos();
 }

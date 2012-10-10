@@ -22,9 +22,9 @@ namespace bodycontroller {
       void setZRotation(int angle);
 
     signals:
-      void xRotationChanged(int angle);
-      void yRotationChanged(int angle);
-      void zRotationChanged(int angle);
+      void x_rotation_changed(int angle);
+      void y_rotation_changed(int angle);
+      void z_rotation_changed(int angle);
 
     protected:
       void initializeGL();
@@ -36,13 +36,12 @@ namespace bodycontroller {
     private:
       GLWidget (const GLWidget& original);
       GLWidget& operator= (const GLWidget& rhs);
-      int xRot;
-      int yRot;
-      int zRot;
+      void draw_cube(float x, float y, float z);
+      int _xrot;
+      int _yrot;
+      int _zrot;
       int _zoom;
       QPoint lastPos;
-      QColor qtGreen;
-      QColor qtPurple;
   };
 
 
