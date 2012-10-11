@@ -29,8 +29,9 @@ GUIMainWindow::~GUIMainWindow() {
   delete _ui;
 }
 
-void GUIMainWindow::on_testbutton_clicked() {
-  std::cout << "TEST" << std::endl;
+void GUIMainWindow::on_reset_btn_clicked() {
+  std::cout << "Resetting view." << std::endl;
+  _gl_widget->reset_camera();
 }
 
 void GUIMainWindow::closeEvent(QCloseEvent *event) {

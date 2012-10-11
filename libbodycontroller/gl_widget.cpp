@@ -11,6 +11,8 @@ using namespace bodycontroller;
 
 GLWidget::GLWidget(QWidget *parent)
   : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)
+  , _xpos(0)
+  , _ypos(0)
   , _xrot(0)
   , _yrot(0)
   , _zrot(0)
@@ -64,6 +66,16 @@ void GLWidget::setZRotation(int angle)
     emit z_rotation_changed(angle);
     updateGL();
   }
+}
+
+void GLWidget::reset_camera() {
+  _xpos=0;
+  _ypos=0;
+  _xrot=0;
+  _yrot=0;
+  _zrot=0;
+  _zoom=500;
+  update_projection_matrix();
 }
 
 void GLWidget::initializeGL()
@@ -122,6 +134,85 @@ void GLWidget::draw_cube(float x, float y, float z) {
   glPopMatrix();
 }
 
+/**
+ * TODO: Refactor so that single joints can be updated. 
+ * for now: Just specify the coordinates of the head, draw mockup.
+ */
+void GLWidget::draw_man(float x, float y, float z) {
+  glPushMatrix();
+  glTranslatef(x, y, z); 
+  // we're now back to (0,0,0) - so just draw cubes 
+  // in absolute coordinates.
+  // define layers.
+  float xl=-3;
+  float xc=0;
+  float xr=3;
+  float yhead=15;
+  float yshoulder=12;
+  float yelbow=9;
+  float yhand=6;
+  float yknee=3;
+  float yfoot=0;
+
+  draw_cube(xc,yhead,0);
+  draw_cube(xc,yshoulder,0);
+  draw_cube(xl,yelbow,0);
+  draw_cube(xr,yelbow,0);
+  draw_cube(xl,yhand,0);
+  draw_cube(xr,yhand,0);
+  draw_cube(xc,yhand,0);
+  draw_cube(xl,yknee,0);
+  draw_cube(xr,yknee,0);
+  draw_cube(xl,yfoot,0);
+  draw_cube(xr,yfoot,0);
+
+  glLineWidth (8.0);
+  glColor3f (1,1,1); 
+  glBegin(GL_LINES);
+  glVertex3f (xc,yhead,0);
+  glVertex3f (xc,yshoulder,0);
+  glVertex3f (xc,yshoulder,0);
+  glVertex3f (xl,yelbow,0);
+  glVertex3f (xc,yshoulder,0);
+  glVertex3f (xr,yelbow,0);
+  glVertex3f (xc,yshoulder,0);
+  glVertex3f (xc,yhand,0);
+  glVertex3f (xr,yelbow,0);
+  glVertex3f (xr,yhand,0);
+  glVertex3f (xl,yelbow,0);
+  glVertex3f (xl,yhand,0);
+  glVertex3f (xc,yhand,0);
+  glVertex3f (xl,yknee,0);
+  glVertex3f (xc,yhand,0);
+  glVertex3f (xr,yknee,0);
+  glVertex3f (xr,yknee,0);
+  glVertex3f (xr,yfoot,0);
+  glVertex3f (xl,yknee,0);
+  glVertex3f (xl,yfoot,0);
+  glEnd();
+
+  glPopMatrix();
+}
+
+void GLWidget::draw_axes(void) {
+  glPushMatrix ();
+  glLineWidth (4.0);
+
+  glBegin (GL_LINES);
+  glColor3f (1,0,0); // X axis is red.
+  glVertex3f (0,0,0);
+  glVertex3f (10,0,0 ); 
+  glColor3f (0,1,0); // Y axis is green.
+  glVertex3f (0,0,0);
+  glVertex3f (0,10,0);
+  glColor3f (0,0,1); // z axis is blue.
+  glVertex3f (0,0,0);
+  glVertex3f (0,0,10); 
+  glEnd();
+  
+  glPopMatrix ();
+}
+
 void GLWidget::paintGL()
 {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -129,16 +220,19 @@ void GLWidget::paintGL()
   glRotatef(_xrot / 16.0, 1.0, 0.0, 0.0);
   glRotatef(_yrot / 16.0, 0.0, 1.0, 0.0);
   glRotatef(_zrot / 16.0, 0.0, 0.0, 1.0);
+  draw_axes();
 
- // Draw cube in the right side of the window
-// next code will draw a line at starting and ending coordinates specified by glVertex3f
-  glBegin(GL_LINES);
-  glColor3f(1.0f,1.0f,1.0f);	// Color Violet
-  glVertex3f(1.0f, 1.0f, 0.0f); // origin of the line
-  glVertex3f(2.0f, 3.0f, 5.0f); // ending point of the line
-  glEnd( );
-  draw_cube(-1.5f, 0.0, 0.0);
-  draw_cube(1.5f, 0.0, 0.0);
+  // Draw cube in the right side of the window
+  // next code will draw a line at starting and ending coordinates specified by glVertex3f
+//  glBegin(GL_LINES);
+//  glColor3f(1.0f,1.0f,1.0f);	// Color Violet
+//  glVertex3f(1.0f, 1.0f, 0.0f); // origin of the line
+//  glVertex3f(2.0f, 3.0f, 5.0f); // ending point of the line
+//  glEnd( );
+ // draw_cube(-1.5f, 0.0, 0.0);
+ // draw_cube(1.5f, 0.0, 0.0);
+  draw_man(6,2,4);
+  draw_man(-6,-2,-4);
 }
 
 void GLWidget::resizeGL(int width, int height)
@@ -164,14 +258,25 @@ void GLWidget::resizeGL(int width, int height)
 
   glMatrixMode(GL_PROJECTION); // Select projection matrix
   glLoadIdentity(); // Reset projection matrix
-  glOrtho(-0.01*_zoom, 0.01*_zoom, -0.01*_zoom, 0.01*_zoom, -15.0, 15.0);
+  glOrtho(-0.1*_zoom, 0.1*_zoom, -0.1*_zoom, 0.1*_zoom, -30.0, 30.0);
   glMatrixMode(GL_MODELVIEW); // Select modelview matrix
   glLoadIdentity(); // Reset modelview matrix
+  glTranslatef(0,0,-10);
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)
 {
   lastPos = event->pos();
+}
+
+void GLWidget::update_projection_matrix() {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(-0.1*_zoom, 0.1*_zoom, -0.1*_zoom, 0.1*_zoom, -30.0, 30.0);
+    glTranslatef(_xpos,_ypos,-10);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    updateGL();
 }
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
@@ -185,15 +290,11 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
     setYRotation(_yrot + 8 * dx);
   } else if (event->buttons() & Qt::MiddleButton) {
     _zoom+=dzoom;
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-0.01*_zoom, 0.01*_zoom, -0.01*_zoom, 0.01*_zoom, -15.0, 15.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    updateGL();
+    update_projection_matrix();
   } else if (event->buttons() & Qt::RightButton) {
-    setXRotation(_xrot + 8 * dy);
-    setZRotation(_zrot + 8 * dx);
+    _xpos+=(dx*0.1f);
+    _ypos-=(dy*0.1f);
+    update_projection_matrix();
   }
   lastPos = event->pos();
 }

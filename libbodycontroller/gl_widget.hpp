@@ -20,6 +20,7 @@ namespace bodycontroller {
       void setXRotation(int angle);
       void setYRotation(int angle);
       void setZRotation(int angle);
+      void reset_camera();
 
     signals:
       void x_rotation_changed(int angle);
@@ -37,6 +38,11 @@ namespace bodycontroller {
       GLWidget (const GLWidget& original);
       GLWidget& operator= (const GLWidget& rhs);
       void draw_cube(float x, float y, float z);
+      void draw_man(float x, float y, float z);
+      void draw_axes(void);
+      void update_projection_matrix();
+      int _xpos;
+      int _ypos;
       int _xrot;
       int _yrot;
       int _zrot;

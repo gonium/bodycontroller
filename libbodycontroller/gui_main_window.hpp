@@ -21,7 +21,7 @@ namespace bodycontroller {
       virtual ~GUIMainWindow();
 
     private slots:
-      void on_testbutton_clicked();
+      void on_reset_btn_clicked();
 
     signals:
       void valueChanged(int newValue);
